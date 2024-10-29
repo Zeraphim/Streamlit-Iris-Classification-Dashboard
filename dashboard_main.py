@@ -24,6 +24,12 @@ from sklearn import tree
 from sklearn.preprocessing import LabelEncoder
 from sklearn.tree import plot_tree
 
+# Importing Models
+import joblib
+
+# Images
+from PIL import Image
+
 # -------------------------
 
 # Page configuration
@@ -41,7 +47,7 @@ alt.themes.enable("dark")
 
 # page_selection = 'about'
 
-page_selection = 'data_cleaning'
+page_selection = 'machine_learning'
 
 with st.sidebar:
 
@@ -87,8 +93,19 @@ iris_df = pd.read_csv("data/IRIS.csv")
 
 # -------------------------
 
+# Importing models
+
+dt_classifier = joblib.load('assets/models/decision_tree_model.joblib')
+rfr_classifier = joblib.load('assets/models/random_forest_regressor.joblib')
+
+features = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+species_list = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+
+# -------------------------
+
 # Plots
 
+# `key` parameter is used to update the plot when the page is refreshed
 
 def pie_chart(column, width, height, key):
 
@@ -131,6 +148,24 @@ def pairwise_scatter_plot(key):
     )
 
     st.plotly_chart(scatter_matrix, use_container_width=True, key=f"pairwise_scatter_plot_{key}")
+
+def feature_importance_plot(feature_importance_df, width, height, key):
+    # Generate a bar plot for feature importances
+    feature_importance_fig = px.bar(
+        feature_importance_df,
+        x='Importance',
+        y='Feature',
+        labels={'Importance': 'Importance Score', 'Feature': 'Feature'},
+        orientation='h'  # Horizontal bar plot
+    )
+
+    # Adjust the height and width
+    feature_importance_fig.update_layout(
+        width=width,  # Set the width
+        height=height  # Set the height
+    )
+
+    st.plotly_chart(feature_importance_fig, use_container_width=True, key=f"feature_importance_plot_{key}")
 
 
 # -------------------------
@@ -368,6 +403,175 @@ elif page_selection == "data_cleaning":
 # Machine Learning Page
 elif page_selection == "machine_learning":
     st.header("🤖 Machine Learning")
+
+    st.subheader("Decision Tree Classifier")
+    st.markdown("""
+
+    **Decision Tree Classifier** from Scikit-learn library is a machine learning algorithm that is used primarily for *classification* tasks. Its goal is to *categorize* data points into specific classes. This is made by breaking down data into smaller and smaller subsets based on questions which then creates a `"Tree"` structure wherein each **node** in the tree represents a question or decision point based on the feature in the data. Depending on the answer, the data moves down one **branch** of the tree leading to another node with a new question or decision.  
+
+    This process continues until reaching the **leaf** node wherein a class label is assigned. The algorithm then chooses questions that tends to split the data to make it pure at each level.
+
+    `Reference:` https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html         
+                
+    """)
+
+    st.subheader("Training the Decision Tree Classifier")
+
+    st.code("""
+
+    dt_classifier = DecisionTreeClassifier(random_state=42)
+    dt_classifier.fit(X_train, y_train)     
+            
+    """)
+
+    st.subheader("Model Evaluation")
+
+    st.code("""
+
+    y_pred = dt_classifier.predict(X_test)
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'Accuracy: {accuracy * 100:.2f}%')
+            
+    """)
+
+    st.write("Accuracy: 100.00%")
+
+    st.markdown("""
+
+    Upon training our Decision Tree classifier model, our model managed to obtain 100% accuracy after the training indicating that it was able to learn and recognize patterns from the dataset.
+     
+    """)
+
+    st.subheader("Feature Importance")
+
+    st.code("""
+
+    decision_tree_feature_importance = pd.Series(dt_classifier.feature_importances_, index=X_train.columns)
+
+    decision_tree_feature_importance
+     
+    """)
+
+    dt_feature_importance = {
+        'Feature': ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+        'Importance': [0.000000, 0.019110, 0.893264, 0.087626]
+    }
+
+    dt_feature_importance_df = pd.DataFrame(dt_feature_importance)
+
+    st.dataframe(dt_feature_importance_df, use_container_width=True, hide_index=True)
+
+    feature_importance_plot(dt_feature_importance_df, 500, 500, 1)
+
+    st.markdown("""
+
+    Upon running `.feature_importances` in the `Decision Tree Classifier Model` to check how each Iris species' features influence the training of our model, it is clear that **petal_length** holds the most influence in our model's decisions having **0.89** or **89%** importance. This is followed by **petal_width** which is far behind of petal_length having **0.087** or **8.7%** importance.
+
+    """)
+
+    dt_tree_image = Image.open('assets/model_results/DTTree.png')
+    st.image(dt_tree_image, caption='Decision Tree Classifier - Tree Plot')
+
+    st.markdown("""
+
+    This **Tree Plot** visualizes how our **Decision Tree** classifier model makes its predictions based on what was learned from the Iris species' features during the training.
+                
+    """)
+        
+
+    # Random Forest Regressor
+
+    st.subheader("Random Forest Regressor")
+
+    st.markdown("""
+
+    **Random Forest Regressor** is a machine learning algorithm that is used to predict continuous values by *combining multiple decision trees* which is called `"Forest"` wherein each tree is trained independently on different random subset of data and features.
+
+    This process begins with data **splitting** wherein the algorithm selects various random subsets of both the data points and the features to create diverse decision trees.  
+
+    Each tree is then trained separately to make predictions based on its unique subset. When it's time to make a final prediction each tree in the forest gives its own result and the Random Forest algorithm averages these predictions.
+
+    `Reference:` https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
+         
+    """)
+
+    st.subheader("Training the Random Forest Regressor model")
+
+    st.code("""
+
+    rfr_classifier = RandomForestRegressor()
+    rfr_classifier.fit(X_train, y_train)     
+            
+    """)
+
+    st.subheader("Model Evaluation")
+
+    st.code("""
+
+    train_accuracy = rfr_classifier.score(X_train, y_train) #train daTa
+    test_accuracy = rfr_classifier.score(X_test, y_test) #test daTa
+
+    print(f'Train Accuracy: {train_accuracy * 100:.2f}%')
+    print(f'Test Accuracy: {test_accuracy * 100:.2f}%')
+    
+    """)
+
+    st.write("""
+
+    **Train Accuracy:** 98.58%\n
+    **Test Accuracy:** 99.82%      
+             
+    """)
+
+    st.subheader("Feature Importance")
+
+    st.code("""
+
+    random_forest_feature_importance = pd.Series(rfr_classifier.feature_importances_, index=X_train.columns)
+
+    random_forest_feature_importance
+    
+    """)
+
+    rfr_feature_importance = {
+        'Feature': ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'],
+        'Importance': [0.005930, 0.012981, 0.585738, 0.395351]
+    }
+
+    rfr_feature_importance_df = pd.DataFrame(rfr_feature_importance)
+
+    st.dataframe(rfr_feature_importance_df, use_container_width=True, hide_index=True)
+
+    feature_importance_plot(rfr_feature_importance_df, 500, 500, 2)
+
+    st.markdown("""
+
+    Upon running `.feature_importances` in the `Random Forest Regressor Model` to check how each Iris species' features influence the training of our model, it is clear that **petal_length** holds the most influence in our model's decisions having **0.58** or **58%** importance. This is followed by **petal_width** which is far behind of petal_length having **0.39** or **39%** importance.
+
+    """)
+
+    st.subheader("Number of Trees")
+    st.code("""
+
+    print(f"Number of trees made: {len(rfr_classifier.estimators_)}")
+     
+    """)
+
+    st.markdown("**Number of trees made:** 100")
+
+    st.subheader("Plotting the Forest")
+
+    forest_image = Image.open('assets/model_results/RFRForest.png')
+    st.image(forest_image, caption='Random Forest Regressor - Forest Plot')
+
+    st.markdown("This graph shows **all of the decision trees** made by our **Random Forest Regressor** model which then forms a **Forest**.")
+
+    st.subheader("Forest - Single Tree")
+
+    forest_single_tree_image = Image.open('assets/model_results/RFRTreeOne.png')
+    st.image(forest_single_tree_image, caption='Random Forest Regressor - Single Tree')
+
+    st.markdown("This **Tree Plot** shows a single tree from our Random Forest Regressor model.")
 
 # Prediction Page
 elif page_selection == "prediction":
