@@ -182,11 +182,15 @@ if st.session_state.page_selection == "about":
 
     st.markdown(""" 
 
-    This notebook explores the Iris flower dataset by performing:
-    1. Exploratory Data Analysis (EDA)
-    2. Data Pre-processing
-    3. Training two supervised classification models: **Decision Tree Classifier** and **Random Forest Regressor**
-    4. Making predictions on a new **unseen data**
+    A Streamlit web application that performs **Exploratory Data Analysis (EDA)**, **Data Preprocessing**, and **Supervised Machine Learning** to classify Iris species from the Iris dataset (Setosa, Versicolor, and Virginica) using **Decision Tree Classifier** and **Random Forest Regressor**.
+
+    Pages
+    1. `Dataset` - Brief description of the Iris Flower dataset used in this dashboard. 
+    2. `EDA` - Exploratory Data Analysis of the Iris Flower dataset. Highlighting the distribution of Iris species and the relationship between the features. Includes graphs such as Pie Chart, Scatter Plots, and Pairwise Scatter Plot Matrix.
+    3. `Data Cleaning / Pre-processing` - Data cleaning and pre-processing steps such as encoding the species column and splitting the dataset into training and testing sets.
+    4. `Machine Learning` - Training two supervised classification models: Decision Tree Classifier and Random Forest Regressor. Includes model evaluation, feature importance, and tree plot.
+    5. `Prediction` - Prediction page where users can input values to predict the Iris species using the trained models.
+    6. `Conclusion` - Summary of the insights and observations from the EDA and model training.
 
 
     """)
@@ -208,9 +212,36 @@ elif st.session_state.page_selection == "dataset":
                 
     """)
 
+    col_iris = st.columns((3, 3, 3), gap='medium')
+
+    # Define the new dimensions (width, height)
+    resize_dimensions = (500, 300)  # Example dimensions, adjust as needed
+
+    with col_iris[0]:
+        setosa_image = Image.open('assets/iris_pictures/setosa.webp')
+        setosa_image = setosa_image.resize(resize_dimensions)
+        st.image(setosa_image, caption='Iris Setosa')
+
+    with col_iris[1]:
+        versicolor_image = Image.open('assets/iris_pictures/versicolor.webp')
+        versicolor_image = versicolor_image.resize(resize_dimensions)
+        st.image(versicolor_image, caption='Iris Versicolor')
+
+    with col_iris[2]:
+
+        virginica_image = Image.open('assets/iris_pictures/virginica.webp')
+        virginica_image = virginica_image.resize(resize_dimensions)
+        st.image(virginica_image, caption='Iris Virginica')
+        
+
     # Display the dataset
     st.subheader("Dataset displayed as a Data Frame")
     st.dataframe(iris_df, use_container_width=True, hide_index=True)
+
+    # Describe Statistics
+    st.subheader("Descriptive Statistics")
+    st.dataframe(iris_df.describe(), use_container_width=True)
+
 
 # EDA Page
 elif st.session_state.page_selection == "eda":
@@ -419,6 +450,19 @@ elif st.session_state.page_selection == "machine_learning":
                 
     """)
 
+    # Columns to center the Decision Tree Parts image
+    col_dt_fig = st.columns((2, 4, 2), gap='medium')
+
+    with col_dt_fig[0]:
+        st.write(' ')
+
+    with col_dt_fig[1]:
+        decision_tree_parts_image = Image.open('assets/figures/decision_tree_parts.png')
+        st.image(decision_tree_parts_image, caption='Decision Tree Parts')
+
+    with col_dt_fig[2]:
+        st.write(' ')
+
     st.subheader("Training the Decision Tree Classifier")
 
     st.code("""
@@ -498,6 +542,19 @@ elif st.session_state.page_selection == "machine_learning":
     `Reference:` https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html
          
     """)
+
+    # Columns to center the Random Forest Regressor figure image
+    col_rfr_fig = st.columns((2, 4, 2), gap='medium')
+
+    with col_rfr_fig[0]:
+        st.write(' ')
+
+    with col_rfr_fig[1]:
+        decision_tree_parts_image = Image.open('assets/figures/Random-Forest-Figure.png')
+        st.image(decision_tree_parts_image, caption='Random Forest Figure')
+
+    with col_rfr_fig[2]:
+        st.write(' ')
 
     st.subheader("Training the Random Forest Regressor model")
 
