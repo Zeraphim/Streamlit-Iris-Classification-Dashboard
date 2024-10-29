@@ -316,7 +316,7 @@ elif page_selection == "data_cleaning":
 
     st.markdown("""
 
-    Since the distribution of Iris species in our dataset is **balanced** and there are **0 null values** as well in our dataset. We will be proceeding alredy with creating the **Embeddings** for the *species* column and **Train-Test split** for training our machine learning model.
+    Since the distribution of Iris species in our dataset is **balanced** and there are **0 null values** as well in our dataset. We will be proceeding already with creating the **Embeddings** for the *species* column and **Train-Test split** for training our machine learning model.
          
     """)
 
