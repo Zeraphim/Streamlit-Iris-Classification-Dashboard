@@ -47,7 +47,7 @@ alt.themes.enable("dark")
 
 # page_selection = 'about'
 
-page_selection = 'machine_learning'
+page_selection = 'prediction'
 
 with st.sidebar:
 
@@ -576,6 +576,111 @@ elif page_selection == "machine_learning":
 # Prediction Page
 elif page_selection == "prediction":
     st.header("👀 Prediction")
+
+    # Initialize session state for clearing results
+    if 'clear' not in st.session_state:
+        st.session_state.clear = False
+
+    col_pred = st.columns((1.5, 3, 3), gap='medium')
+
+    with col_pred[0]:
+        with st.expander('Options', expanded=True):
+            show_dataset = st.checkbox('Show Dataset')
+            show_classes = st.checkbox('Show All Classes')
+            show_setosa = st.checkbox('Show Setosa')
+            show_versicolor = st.checkbox('Show Versicolor')
+            show_virginica = st.checkbox('Show Virginica')
+            clear_results = st.button('Clear Results', key='clear_results')
+
+            if clear_results:
+                st.session_state.clear = True
+
+    with col_pred[1]:
+        st.markdown("#### 🌲 Decision Tree Classifier")
+        
+        # Input boxes for the features
+        dt_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_length', value=0.0 if st.session_state.clear else st.session_state.get('dt_sepal_length', 0.0))
+        dt_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_width', value=0.0 if st.session_state.clear else st.session_state.get('dt_sepal_width', 0.0))
+        dt_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_width', value=0.0 if st.session_state.clear else st.session_state.get('dt_petal_width', 0.0))
+        dt_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_length', value=0.0 if st.session_state.clear else st.session_state.get('dt_petal_length', 0.0))
+
+
+        classes_list = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+        
+        # Button to detect the Iris species
+        if st.button('Detect', key='dt_detect'):
+            # Prepare the input data for prediction
+            dt_input_data = [[dt_sepal_width, dt_sepal_length, dt_petal_width, dt_petal_length]]
+            
+            # Predict the Iris species
+            dt_prediction = dt_classifier.predict(dt_input_data)
+            
+            # Display the prediction result
+            st.markdown(f'The predicted Iris species is: `{classes_list[dt_prediction[0]]}`')
+
+    with col_pred[2]:
+        st.markdown("#### 🌲🌲🌲 Random Forest Regressor")
+
+        # Input boxes for the features
+        rfr_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_length', value=0.0 if st.session_state.clear else st.session_state.get('rfr_sepal_length', 0.0))
+        rfr_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_width', value=0.0 if st.session_state.clear else st.session_state.get('rfr_sepal_width', 0.0))
+        rfr_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_width', value=0.0 if st.session_state.clear else st.session_state.get('rfr_petal_width', 0.0))
+        rfr_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_length', value=0.0 if st.session_state.clear else st.session_state.get('rfr_petal_length', 0.0))
+
+        classes_list = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
+        
+        # Button to detect the Iris species
+        if st.button('Detect', key='rfr_detect'):
+            # Prepare the input data for prediction
+            rfr_input_data = [[rfr_sepal_width, rfr_sepal_length, rfr_petal_width, rfr_petal_length]]
+            
+            # Predict the Iris species
+            rfr_prediction = dt_classifier.predict(rfr_input_data)
+            
+            # Display the prediction result
+            st.markdown(f'The predicted Iris species is: `{classes_list[rfr_prediction[0]]}`')
+
+    # Reset the clear state after clearing inputs
+    if st.session_state.clear:
+        st.session_state.clear = False
+
+    # Create 3 Data Frames containing  5 rows for each species
+    setosa_samples = iris_df[iris_df["species"] == "Iris-setosa"].head(5)
+    versicolor_samples = iris_df[iris_df["species"] == "Iris-versicolor"].head(5)
+    virginica_samples = iris_df[iris_df["species"] == "Iris-virginica"].head(5)
+
+    if show_dataset:
+        # Display the dataset
+        st.subheader("Dataset")
+        st.dataframe(iris_df, use_container_width=True, hide_index=True)
+
+    if show_classes:
+        # Iris-setosa Samples
+        st.subheader("Iris-setosa Samples")
+        st.dataframe(setosa_samples, use_container_width=True, hide_index=True)
+
+        # Iris-versicolor Samples
+        st.subheader("Iris-versicolor Samples")
+        st.dataframe(versicolor_samples, use_container_width=True, hide_index=True)
+
+        # Iris-virginica Samples
+        st.subheader("Iris-virginica Samples")
+        st.dataframe(virginica_samples, use_container_width=True, hide_index=True)
+
+    if show_setosa:
+        # Display the Iris-setosa samples
+        st.subheader("Iris-setosa Samples")
+        st.dataframe(setosa_samples, use_container_width=True, hide_index=True)
+
+    if show_versicolor:
+        # Display the Iris-versicolor samples
+        st.subheader("Iris-versicolor Samples")
+        st.dataframe(versicolor_samples, use_container_width=True, hide_index=True)
+
+    if show_virginica:
+        # Display the Iris-virginica samples
+        st.subheader("Iris-virginica Samples")
+        st.dataframe(virginica_samples, use_container_width=True, hide_index=True)
 
 # Conclusions Page
 elif page_selection == "conclusion":
