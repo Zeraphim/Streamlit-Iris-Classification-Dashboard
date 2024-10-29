@@ -41,7 +41,7 @@ alt.themes.enable("dark")
 
 # page_selection = 'about'
 
-page_selection = 'eda'
+page_selection = 'data_cleaning'
 
 with st.sidebar:
 
@@ -90,7 +90,7 @@ iris_df = pd.read_csv("data/IRIS.csv")
 # Plots
 
 
-def pie_chart(column, width, height):
+def pie_chart(column, width, height, key):
 
     # Generate a pie chart
     pie_chart = px.pie(iris_df, names=iris_df[column].unique(), values=iris_df[column].value_counts().values)
@@ -101,10 +101,9 @@ def pie_chart(column, width, height):
         height=height  # Set the height
     )
 
-    st.plotly_chart(pie_chart, use_container_width=True)
+    st.plotly_chart(pie_chart, use_container_width=True,  key=f"pie_chart_{key}")
 
-
-def scatter_plot(column, width, height):
+def scatter_plot(column, width, height, key):
 
     # Generate a scatter plot
     scatter_plot = px.scatter(iris_df, x=iris_df['species'], y=iris_df[column])
@@ -115,9 +114,9 @@ def scatter_plot(column, width, height):
         height=height  # Set the height
     )
 
-    st.plotly_chart(scatter_plot, use_container_width=True)
+    st.plotly_chart(scatter_plot, use_container_width=True, key=f"scatter_plot_{key}")
 
-def pairwise_scatter_plot():
+def pairwise_scatter_plot(key):
     # Generate a pairwise scatter plot matrix
     scatter_matrix = px.scatter_matrix(
         iris_df,
@@ -131,7 +130,7 @@ def pairwise_scatter_plot():
         height=500  # Set the height
     )
 
-    st.plotly_chart(scatter_matrix, use_container_width=True)
+    st.plotly_chart(scatter_matrix, use_container_width=True, key=f"pairwise_scatter_plot_{key}")
 
 
 # -------------------------
@@ -172,7 +171,7 @@ elif page_selection == "dataset":
 
     # Display the dataset
     st.subheader("Dataset displayed as a Data Frame")
-    st.dataframe(iris_df, use_container_width=True)
+    st.dataframe(iris_df, use_container_width=True, hide_index=True)
 
 # EDA Page
 elif page_selection == "eda":
@@ -192,30 +191,30 @@ elif page_selection == "eda":
 
 
         st.markdown('#### Class Distribution')
-        pie_chart("species", 500, 350)
+        pie_chart("species", 500, 350, 1)
 
     with col[1]:
         st.markdown('#### Sepal Length by Species')
-        scatter_plot("sepal_length", 500, 300)
+        scatter_plot("sepal_length", 500, 300, 1)
 
         st.markdown('#### Sepal Width by Species')
-        scatter_plot("sepal_width", 500, 300)
+        scatter_plot("sepal_width", 500, 300, 2)
         
     with col[2]:
         st.markdown('#### Petal Length by Species')
-        scatter_plot("petal_length", 500, 300)
+        scatter_plot("petal_length", 500, 300, 3)
 
         st.markdown('#### Petal Width by Species')
-        scatter_plot("petal_width", 500, 300)
+        scatter_plot("petal_width", 500, 300, 4)
 
     st.markdown('#### Pairwise Scatter Plot Matrix')
-    pairwise_scatter_plot()
+    pairwise_scatter_plot(1)
 
     # Insights Section
     st.header("💡 Insights")
 
     st.markdown('#### Class Distribution')
-    pie_chart("species", 600, 500)
+    pie_chart("species", 600, 500, 2)
 
     st.markdown("""
                 
@@ -224,7 +223,7 @@ elif page_selection == "eda":
     """)
 
     st.markdown('#### Sepal Length by Species')
-    scatter_plot("sepal_length", 600, 500)
+    scatter_plot("sepal_length", 600, 500, 5)
 
     st.markdown("""
 
@@ -235,7 +234,7 @@ elif page_selection == "eda":
     """)
 
     st.markdown('#### Sepal Width by Species')
-    scatter_plot("sepal_width", 600, 500)
+    scatter_plot("sepal_width", 600, 500, 6)
 
     st.markdown("""
 
@@ -244,7 +243,7 @@ elif page_selection == "eda":
     """)
     
     st.markdown('#### Petal Length by Species')
-    scatter_plot("petal_length", 600, 500)
+    scatter_plot("petal_length", 600, 500, 7)
 
     st.markdown("""
 
@@ -253,7 +252,7 @@ elif page_selection == "eda":
     """)
 
     st.markdown('#### Petal Width by Species')
-    scatter_plot("petal_width", 600, 500)
+    scatter_plot("petal_width", 600, 500, 8)
 
     st.markdown("""
 
@@ -262,7 +261,7 @@ elif page_selection == "eda":
     """)
 
     st.markdown('#### Pairwise Scatter Plot Matrix')
-    pairwise_scatter_plot()
+    pairwise_scatter_plot(2)
 
     st.markdown("""
 
@@ -279,6 +278,92 @@ elif page_selection == "eda":
 # Data Cleaning Page
 elif page_selection == "data_cleaning":
     st.header("🧼 Data Cleaning and Data Pre-processing")
+
+    st.dataframe(iris_df.head(), use_container_width=True, hide_index=True)
+
+    st.markdown("""
+
+    Since the distribution of Iris species in our dataset is **balanced** and there are **0 null values** as well in our dataset. We will be proceeding alredy with creating the **Embeddings** for the *species* column and **Train-Test split** for training our machine learning model.
+         
+    """)
+
+    encoder = LabelEncoder()
+
+    iris_df['species_encoded'] = encoder.fit_transform(iris_df['species'])
+
+    st.dataframe(iris_df.head(), use_container_width=True, hide_index=True)
+
+    st.markdown("""
+
+    Now we converted the values of **species** column to numerical values using `LabelEncoder`. The **species_encoded** column can now be used as a label for training our supervised model.
+         
+    """)
+
+    # Mapping of the Iris species and their encoded equivalent
+
+    unique_species = iris_df['species'].unique()
+    unique_species_encoded = iris_df['species_encoded'].unique()
+
+    # Create a new DataFrame
+    species_mapping_df = pd.DataFrame({'Species': unique_species, 'Species Encoded': unique_species_encoded})
+
+    # Display the DataFrame
+    st.dataframe(species_mapping_df, use_container_width=True, hide_index=True)
+
+    st.markdown("""
+
+    With the help of **embeddings**, Iris-setosa is now represented by a numerical value of **0**, Iris-versicolor represented by **1**, and Iris-virginica represented by **2**.
+         
+    """)
+
+    st.subheader("Train-Test Split")
+
+    # Select features and target variable
+    features = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+    X = iris_df[features]
+    y = iris_df['species_encoded']
+
+    st.code("""
+
+    # Select features and target variable
+    features = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+    X = iris_df[features]
+    y = iris_df['species_encoded']
+
+            
+    """)
+
+    st.markdown("""
+
+    Now we select the features and labels for training our model.  
+    The potential `features` that we can use are **sepal_length**, **sepal_width**, **petal_length**, and **petal_width**.  
+    As for the `label` we can use the **species_encoded** column derived from the *species* column.
+         
+    """)
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+    st.code("""
+
+    # Split the dataset into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+                
+    """)
+
+    st.subheader("X_train")
+    st.dataframe(X_train, use_container_width=True, hide_index=True)
+
+    st.subheader("X_test")
+    st.dataframe(X_test, use_container_width=True, hide_index=True)
+
+    st.subheader("y_train")
+    st.dataframe(y_train, use_container_width=True, hide_index=True)
+
+    st.subheader("y_test")
+    st.dataframe(y_test, use_container_width=True, hide_index=True)
+
+    st.markdown("After splitting our dataset into `training` and `test` set. We can now proceed with **training our supervised models**.")
 
 # Machine Learning Page
 elif page_selection == "machine_learning":
