@@ -45,7 +45,13 @@ alt.themes.enable("dark")
 
 # Sidebar
 
-page_selection = 'about'
+# Initialize page_selection in session state if not already set
+if 'page_selection' not in st.session_state:
+    st.session_state.page_selection = 'about'  # Default page
+
+# Function to update page_selection
+def set_page_selection(page):
+    st.session_state.page_selection = page
 
 with st.sidebar:
 
@@ -54,26 +60,26 @@ with st.sidebar:
     # Page Button Navigation
     st.subheader("Pages")
 
-    if st.button("About", use_container_width=True):
-        page_selection = 'about'
+    if st.button("About", use_container_width=True, on_click=set_page_selection, args=('about',)):
+        st.session_state.page_selection = 'about'
     
-    if st.button("Dataset", use_container_width=True):
-        page_selection = 'dataset'
+    if st.button("Dataset", use_container_width=True, on_click=set_page_selection, args=('dataset',)):
+        st.session_state.page_selection = 'dataset'
 
-    if st.button("EDA", use_container_width=True):
-        page_selection = "eda"
+    if st.button("EDA", use_container_width=True, on_click=set_page_selection, args=('eda',)):
+        st.session_state.page_selection = "eda"
 
-    if st.button("Data Cleaning / Pre-processing", use_container_width=True):
-        page_selection = "data_cleaning"
+    if st.button("Data Cleaning / Pre-processing", use_container_width=True, on_click=set_page_selection, args=('data_cleaning',)):
+        st.session_state.page_selection = "data_cleaning"
 
-    if st.button("Machine Learning", use_container_width=True): 
-        page_selection = "machine_learning"
+    if st.button("Machine Learning", use_container_width=True, on_click=set_page_selection, args=('machine_learning',)): 
+        st.session_state.page_selection = "machine_learning"
 
-    if st.button("Prediction", use_container_width=True): 
-        page_selection = "prediction"
+    if st.button("Prediction", use_container_width=True, on_click=set_page_selection, args=('prediction',)): 
+        st.session_state.page_selection = "prediction"
 
-    if st.button("Conclusion", use_container_width=True):
-        page_selection = "conclusion"
+    if st.button("Conclusion", use_container_width=True, on_click=set_page_selection, args=('conclusion',)):
+        st.session_state.page_selection = "conclusion"
 
     # Project Details
     st.subheader("Abstract")
@@ -171,7 +177,7 @@ def feature_importance_plot(feature_importance_df, width, height, key):
 # Pages
 
 # About Page
-if page_selection == "about":
+if st.session_state.page_selection == "about":
     st.header("ℹ️ About")
 
     st.markdown(""" 
@@ -186,7 +192,7 @@ if page_selection == "about":
     """)
 
 # Dataset Page
-elif page_selection == "dataset":
+elif st.session_state.page_selection == "dataset":
     st.header("📊 Dataset")
 
     st.markdown("""
@@ -207,7 +213,7 @@ elif page_selection == "dataset":
     st.dataframe(iris_df, use_container_width=True, hide_index=True)
 
 # EDA Page
-elif page_selection == "eda":
+elif st.session_state.page_selection == "eda":
     st.header("📈 Exploratory Data Analysis (EDA)")
 
     col = st.columns((3, 3, 3), gap='medium')
@@ -309,7 +315,7 @@ elif page_selection == "eda":
     """)
 
 # Data Cleaning Page
-elif page_selection == "data_cleaning":
+elif st.session_state.page_selection == "data_cleaning":
     st.header("🧼 Data Cleaning and Data Pre-processing")
 
     st.dataframe(iris_df.head(), use_container_width=True, hide_index=True)
@@ -399,7 +405,7 @@ elif page_selection == "data_cleaning":
     st.markdown("After splitting our dataset into `training` and `test` set. We can now proceed with **training our supervised models**.")
 
 # Machine Learning Page
-elif page_selection == "machine_learning":
+elif st.session_state.page_selection == "machine_learning":
     st.header("🤖 Machine Learning")
 
     st.subheader("Decision Tree Classifier")
@@ -572,12 +578,8 @@ elif page_selection == "machine_learning":
     st.markdown("This **Tree Plot** shows a single tree from our Random Forest Regressor model.")
 
 # Prediction Page
-elif page_selection == "prediction":
+elif  st.session_state.page_selection == "prediction":
     st.header(" Prediction")
-
-    # Initialize session state for clearing results
-    if 'clear' not in st.session_state:
-        st.session_state.clear = False
 
     col_pred = st.columns((1.5, 3, 3), gap='medium')
 
@@ -590,17 +592,14 @@ elif page_selection == "prediction":
             show_virginica = st.checkbox('Show Virginica')
             clear_results = st.button('Clear Results', key='clear_results')
 
-            if clear_results:
-                st.session_state.clear = True
-
     with col_pred[1]:
         st.markdown("#### 🌲 Decision Tree Classifier")
         
         # Input boxes for the features
-        dt_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_length', value=0.0 if st.session_state.clear else st.session_state.get('dt_sepal_length', 0.0))
-        dt_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_width', value=0.0 if st.session_state.clear else st.session_state.get('dt_sepal_width', 0.0))
-        dt_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_width', value=0.0 if st.session_state.clear else st.session_state.get('dt_petal_width', 0.0))
-        dt_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_length', value=0.0 if st.session_state.clear else st.session_state.get('dt_petal_length', 0.0))
+        dt_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_length', value=0.0)
+        dt_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_sepal_width', value=0.0)
+        dt_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_width', value=0.0)
+        dt_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='dt_petal_length', value=0.0)
 
 
         classes_list = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
@@ -620,10 +619,10 @@ elif page_selection == "prediction":
         st.markdown("#### 🌲🌲🌲 Random Forest Regressor")
 
         # Input boxes for the features
-        rfr_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_length', value=0.0 if st.session_state.clear else st.session_state.get('rfr_sepal_length', 0.0))
-        rfr_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_width', value=0.0 if st.session_state.clear else st.session_state.get('rfr_sepal_width', 0.0))
-        rfr_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_width', value=0.0 if st.session_state.clear else st.session_state.get('rfr_petal_width', 0.0))
-        rfr_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_length', value=0.0 if st.session_state.clear else st.session_state.get('rfr_petal_length', 0.0))
+        rfr_sepal_length = st.number_input('Sepal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_length', value=0.0)
+        rfr_sepal_width = st.number_input('Sepal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_sepal_width', value=0.0)
+        rfr_petal_width = st.number_input('Petal Width', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_width', value=0.0)
+        rfr_petal_length = st.number_input('Petal Length', min_value=0.0, max_value=10.0, step=0.1, key='rfr_petal_length', value=0.0)
 
         classes_list = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
         
@@ -637,10 +636,6 @@ elif page_selection == "prediction":
             
             # Display the prediction result
             st.markdown(f'The predicted Iris species is: `{classes_list[rfr_prediction[0]]}`')
-
-    # Reset the clear state after clearing inputs
-    if st.session_state.clear:
-        st.session_state.clear = False
 
     # Create 3 Data Frames containing  5 rows for each species
     setosa_samples = iris_df[iris_df["species"] == "Iris-setosa"].head(5)
@@ -681,7 +676,7 @@ elif page_selection == "prediction":
         st.dataframe(virginica_samples, use_container_width=True, hide_index=True)
 
 # Conclusions Page
-elif page_selection == "conclusion":
+elif st.session_state.page_selection == "conclusion":
     st.header("📝 Conclusion")
 
     st.markdown("""
